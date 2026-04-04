@@ -7,7 +7,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 const config: Config = {
   title: 'Test Docs',
   tagline: ':3',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/aembot_icon.svg',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
@@ -60,21 +60,21 @@ const config: Config = {
       respectPrefersColorScheme: true,
     },
     navbar: {
-      title: 'Test Docs',
+      title: "AEMBOT Software Docs",
       logo: {
-        alt: 'My Site Logo',
-        src: 'img/logo.svg',
+        alt: 'AEMBOT Icon',
+        src: 'img/aembot_icon_dark.svg', // a little backwards
+        srcDark: 'img/aembot_icon.svg'
       },
       items: [
         {
-          type: 'docSidebar',
-          sidebarId: 'tutorialSidebar',
-          position: 'left',
-          label: 'Docs',
-        },
-        {
           href: 'https://github.com/theflamefish/docusaurus-test',
           label: 'GitHub',
+          position: 'right',
+        },
+        {
+          href: 'http://aembot.com',
+          label: 'Website',
           position: 'right',
         },
       ],
