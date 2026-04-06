@@ -4,4 +4,4 @@ title: Welcome
 slug: /
 ---
 
-# Hai :3
+# ![AEMBOT: Robots. Don't. Quit.](/img/aembot_logo.svg)
