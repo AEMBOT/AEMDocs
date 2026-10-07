@@ -5,7 +5,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
-  title: 'Test Docs',
+  title: 'AEMDocs',
   tagline: ':3',
   favicon: 'img/aembot_icon.svg',
 
@@ -15,17 +15,17 @@ const config: Config = {
   },
 
   // Set the production url of your site here
-  url: 'https://theflamefish.github.io/',
+  url: 'https://aembot.github.io/',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/docusaurus-test',
+  baseUrl: '/AEMDocs',
 
   trailingSlash: false,
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'TheFlameFish', // Usually your GitHub org/user name.
-  projectName: 'docusaurus-test', // Usually your repo name.
+  organizationName: 'AEMBOT', // Usually your GitHub org/user name.
+  projectName: 'AEMDocs', // Usually your repo name.
 
   onBrokenLinks: 'throw',
 
