@@ -16,4 +16,4 @@ import ThemedImage from '@theme/ThemedImage';
 Hello, and welcome to AEMBOT's software documentation. This site will host learning resources for new programmers, 
 as well as acting as a knowledge base for referencing code and other software solutions from previous seasons.
 
-Pages of the documentation are arranged in a tree layout, where pages can have child pages. If you're new to the team, check out the []
+Pages of the documentation are arranged in a tree layout, where pages can have child pages. If you're new to the team, check out the [main learning page](/learning).
