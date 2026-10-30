@@ -41,6 +41,9 @@ const config: Config = {
     [
       'classic',
       {
+        theme: {
+          customCss: ['./src/css/custom.css']
+        },
         docs: {
           routeBasePath: "/",
           sidebarPath: './sidebars.ts',
@@ -61,7 +64,7 @@ const config: Config = {
       title: "AEMBOT Software Docs",
       logo: {
         alt: 'AEMBOT Icon',
-        src: 'img/aembot_icon_dark.svg', // a little backwards
+        src: 'img/aembot_icon.svg',
         srcDark: 'img/aembot_icon.svg'
       },
       items: [
