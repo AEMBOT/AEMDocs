@@ -65,17 +65,17 @@ The CTRE devices we use most are:
 - **TalonFX**: This is the **motor controller** used for CTRE's Kraken and Falcon motors, and probably the CTRE device we interact with most.
   - [CTRE Hardware Reference](https://v6.docs.ctr-electronics.com/en/stable/docs/hardware-reference/talonfx/index.html)
   - [CTRE Software Docs](https://v6.docs.ctr-electronics.com/en/stable/docs/api-reference/device-specific/talonfx/index.html)
-  - /* TODO add AEMLib docs */
+  - {/* TODO add AEMLib docs */}
 - **CANcoder**: The CANcoder is, as the name indicates, an **absolute encoder** that can communicate via CAN. It senses the magnetic field of a magnet attached to
   your rotating mechanism, thereby determining its rotation. Unlike a **relative encoder**, it does not lose its state when it loses power. It's especially good 
   for mechanisms that won't have a very precise starting config, and generally good for any mechanism where its position is important since it's resistant to
   unexpected power cuts or brown-outs.
   - [CTRE Hardware Reference](https://v6.docs.ctr-electronics.com/en/stable/docs/hardware-reference/cancoder/index.html)
-  - /* TODO add AEMLib docs */
+  - {/* TODO add AEMLib docs */}
 - **CANrange**: The CANrange is a **time-of-flight sensor**; it fires off a laser and measures how long it takes the light to bounce back to determine the distance
   to the surface it hits. If you're familiar with game dev or rendering, it's very similar to a raycast!
   - [CTRE Hardware Reference](https://v6.docs.ctr-electronics.com/en/stable/docs/hardware-reference/canrange/index.html)
-  - /* TODO add AEMLib docs */
+  - {/* TODO add AEMLib docs */}
 - **Pigeon 2**: The Pigeon 2 is an IMU; it provides us with the acceleration and rotation of the robot. We generally use it as our exclusive source of truth for
   robot yaw, since it's generally substantially more accurate than dead reckoning or vision.
   - [CTRE Hardware Reference](https://v6.docs.ctr-electronics.com/en/stable/docs/hardware-reference/pigeon2/index.html)
