@@ -35,3 +35,8 @@
 .theme-doc-markdown a {
   text-decoration-line: underline;
 }
+
+[data-theme='dark'] ::selection {
+  color: var(--ifm-background-color);
+  background-color: var(--ifm-color-primary-dark);
+}
