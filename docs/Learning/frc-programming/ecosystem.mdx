@@ -1,0 +1,86 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+import RoboRIO from '@site/static/img/devices/rio-2.png'
+import SystemCore from '@site/static/img/devices/systemcore.png'
+import VHRadio from '@site/static/img/devices/vh-109.png'
+import Limelight from '@site/static/img/devices/limelight4.png'
+
+# Intro to the FRC Ecosystem
+As an FRC programmer, there's a relatively small number of potential hardware and software targets your team will probably end up using.
+This page will walk you through the ones you'll be interacting with as an AEMBOT programmer.
+
+## Hardware
+### The RoboRIO / SystemCore
+<img src={RoboRIO} height='300px' alt="The RoboRIO from National Instruments. Labelled are features such as the USB ports, an SD card slot, the ethernet port, and the reset and user buttons." /> <img src={SystemCore} height='300px' alt="The new SystemCore device from Limelight." />
+The RoboRIO (pre-2027) or SystemCore (2027 and beyond) are the primary control devices for the robot. They both run linux-based operating
+systems, and can have Java; C++; Python; LabVIEW; or, in the case of SystemCore, Blockly code deployed to them. We'll also usually plug a
+USB thumb stick into it to contain logs.
+
+Generally speaking, your main method of connecting to the device will be via the radio (more on that below). If you're connected this way, you'll
+be able to access your RIO/SystemCore at the IP address 10.64.43.2. You can SSH into the RIO via the following command:
+<Tabs>
+    <TabItem value="rio" label="RoboRIO">
+    ```bash
+    ssh admin@10.64.43.2
+    ```
+    </TabItem>
+    <TabItem value="systemcore" label="SystemCore">
+    ```bash
+    ssh systemcore@10.64.43.2
+    ```
+    </TabItem>
+</Tabs>
+
+Before each season (or sometimes during the season), you'll need to image your RoboRIO or SystemCore with the latest operating system. You can find
+instructions for the RIO [here](https://docs.wpilib.org/en/2025/docs/zero-to-robot/step-3/roborio2-imaging.html), and instructions for SystemCore
+[here](https://docs.wpilib.org/en/latest/docs/zero-to-robot/step-3/imaging-your-systemcore.html). 
+
+### Radio
+<img src={VHRadio} width="200px" alt="A VividHosting 109 radio." />
+The robot's radio will be your primary method of communication with it. As of 2026, we use the VH-109 radio. There are four main ways to connect to this 
+radio, depending on how it's configured.
+- **Via a direct ethernet connection to it.** This will be your only method of connection while at comps in the pit.
+- **Via the FMS (Field Management System).** This is the system FIRST uses to manage teams' robots and connect them to their driver stations. At a comp,
+  you'll need to take your radio up to be configured for FMS by event staff.
+- **Via Wi-Fi (setting the radio up as an access point).** Your radio will essentially act as a wi-fi router. You can connect to your robot from your
+  device's wi-fi interface.
+- **Via another radio.** This is the method that we use most often in the shop. You'll connect your laptop via ethernet to a stationary radio, and it
+  will communicate wirelessly with the robot's radio. The below diagram illustrates this setup.
+
+<img src="https://docs.wpilib.org/en/latest/_images/VH-109-2-radios.drawio.svg" />
+
+See [here](https://docs.wpilib.org/en/latest/docs/zero-to-robot/step-3/radio-programming.html) for a guide to configuring your radio.
+
+### CTRE Hardware
+Cross the Road Electronics (CTRE) is probably our most used vendor for electronics on our robots; they produce almost all of our sensors and motors.
+Sometimes you may hear them called Phoenix devices, since we use the [Phoenix 6 libary](https://v6.docs.ctr-electronics.com/en/stable/docs/api-reference/api-usage/index.html) to control them.
+
+The majority of CTRE's devices (all of the ones we use) operate on a CAN bus. As opposed to directly individually wiring devices to the RIO/SystemCore, all 
+devices are interconnected by a bus. Each device has a numerical CAN ID, and every message contains the ID that the message is originating from or targetting.
+The RoboRIO has one integrated CAN bus using CAN 2.0, and the SystemCore has five integrated CAN-FD (faster) busses. CTRE also offers the CANivore to create a 
+seperate CAN-FD bus, but this'll be disallowed in 2028. In older RIO-based bots, you'll often see a seperate CANivore bus for the drivetrain.
+
+The CTRE devices we use most are:
+- **TalonFX**: This is the **motor controller** used for CTRE's Kraken and Falcon motors, and probably the CTRE device we interact with most.
+  - [CTRE Hardware Reference](https://v6.docs.ctr-electronics.com/en/stable/docs/hardware-reference/talonfx/index.html)
+  - [CTRE Software Docs](https://v6.docs.ctr-electronics.com/en/stable/docs/api-reference/device-specific/talonfx/index.html)
+  - <!--- TODO add AEMLib docs --->
+- **CANcoder**: The CANcoder is, as the name indicates, an **absolute encoder** that can communicate via CAN. It senses the magnetic field of a magnet attached to
+  your rotating mechanism, thereby determining its rotation. Unlike a **relative encoder**, it does not lose its state when it loses power. It's especially good 
+  for mechanisms that won't have a very precise starting config, and generally good for any mechanism where its position is important since it's resistant to
+  unexpected power cuts or brown-outs.
+  - [CTRE Hardware Reference](https://v6.docs.ctr-electronics.com/en/stable/docs/hardware-reference/cancoder/index.html)
+  - <!--- TODO add AEMLib docs --->
+- **CANrange**: The CANrange is a **time-of-flight sensor**; it fires off a laser and measures how long it takes the light to bounce back to determine the distance
+  to the surface it hits. If you're familiar with game dev or rendering, it's very similar to a raycast!
+  - [CTRE Hardware Reference](https://v6.docs.ctr-electronics.com/en/stable/docs/hardware-reference/canrange/index.html)
+  - <!--- TODO add AEMLib docs --->
+- **Pigeon 2**: The Pigeon 2 is an IMU; it provides us with the acceleration and rotation of the robot. We generally use it as our exclusive source of truth for
+  robot yaw, since it's generally substantially more accurate than dead reckoning or vision.
+  - [CTRE Hardware Reference](https://v6.docs.ctr-electronics.com/en/stable/docs/hardware-reference/pigeon2/index.html)
+
+### Limelight
+<img src={Limelight} width="400px" alt="The Limelight 4, a camera and coprocessor encased in a rectangular black box." />
+We use Limelights for our computer vision (CV). Our most common use for them is to detect field-mounted AprilTags (tags similar to QR codes, which each have a 
+unique numerical ID assigned to them), and use their positions relative to the camera to determine the robot's field position.  
