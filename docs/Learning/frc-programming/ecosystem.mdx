@@ -1,3 +1,7 @@
+---
+sidebar_position: 1
+title: Intro to the FRC Ecosystem
+---
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 
@@ -7,8 +11,12 @@ import VHRadio from "@site/static/img/devices/vh-109.png";
 import Limelight from "@site/static/img/devices/limelight4.png";
 
 import WPILibLogo from "@site/static/img/misc/wpilib-icon.svg";
-import VSCode from "@site/static/img/screenshots/vscode/vscode.png";
-import AScope from "@site/static/img/screenshots/ascope/showoff.png"
+import VSCode from "@site/static/img/screenshots/vscode/showoff.png";
+import AScope from "@site/static/img/screenshots/ascope/showoff.png";
+import Choreo from "@site/static/img/screenshots/choreo/showoff.png";
+import DSLegacy from "@site/static/img/screenshots/driverstation/showoff-legacy.png";
+import DS from "@site/static/img/screenshots/driverstation/showoff-2027.webp";
+import Elastic from "@site/static/img/screenshots/elastic/showoff.png";
 
 # Intro to the FRC Ecosystem
 
@@ -33,7 +41,7 @@ Obviously, to program a robot, you need to understand the physical things you're
 The RoboRIO (pre-2027) or SystemCore (2027 and beyond) are the primary control
 devices for the robot. They both run linux-based operating systems, and can have
 Java; C++; Python; LabVIEW; or, in the case of SystemCore, Blockly code deployed
-to them. We'll also usually plug a USB thumb stick into it to contain logs.
+to them to be run on startup. We'll also usually plug a USB thumb stick into it to contain logs.
 
 Generally speaking, your main method of connecting to the device will be via the radio (more on that below). If you're connected this way, you'll
 be able to access your RIO/SystemCore at the IP address 10.64.43.2. You can SSH into the RIO via the following command:
@@ -76,11 +84,12 @@ See [here](https://docs.wpilib.org/en/latest/docs/zero-to-robot/step-3/radio-pro
 
 Cross the Road Electronics (CTRE) is probably our most used vendor for electronics on our robots; they produce almost all of our sensors and motors.
 Sometimes you may hear them called Phoenix devices, since we use the [Phoenix 6 libary](https://v6.docs.ctr-electronics.com/en/stable/docs/api-reference/api-usage/index.html) to control them.
+All of CTREs devices can be configured and tested via the desktop application [Phoenix Tuner X](https://v6.docs.ctr-electronics.com/en/stable/docs/tuner/index.html) on Windows.
 
 The majority of CTRE's devices (all of the ones we use) operate on a CAN bus. As opposed to directly individually wiring devices to the RIO/SystemCore, all
-devices are interconnected by a bus. Each device has a numerical CAN ID, and every message contains the ID that the message is originating from or targetting.
+devices are interconnected by a bus; a shared pathway over which data is sent serially. Each device has a numerical CAN ID, and every message contains the ID that the message is originating from or targeting.
 The RoboRIO has one integrated CAN bus using CAN 2.0, and the SystemCore has five integrated CAN-FD (faster) busses. CTRE also offers the CANivore to create a
-seperate CAN-FD bus, but this'll be disallowed in 2028. In older RIO-based bots, you'll often see a seperate CANivore bus for the drivetrain.
+separate CAN-FD bus, but this'll be disallowed in 2028. In older RIO-based bots, you'll often see a separate CANivore bus for the drivetrain.
 
 The CTRE devices we use most are:
 
@@ -116,6 +125,10 @@ is to detect field-mounted
 them), and use their positions relative to the camera to determine the robot's
 field position.
 
+:::note
+  The systems that work together to determine the position of the robot on the field are collectively known as its **odometry** systems.
+:::
+
 Limelight offers the most plug-&-play experience currently available for FRC CV; each Limelight camera has an integrated
 coprocessor, a second computer that performs pose-estimation on its own without straining the resources of the RIO / SystemCore.
 
@@ -125,8 +138,15 @@ you can find the limelight via the [Limelight Hardware Manager](https://docs.lim
 
 Limelight also produces color-vision cameras, which we may sometimes use to detect game pieces via CV.
 
+### Other common hardware
+Some other devices you'll commonly use include:
+- **Beam breaks**: Beam breaks are similar to **time-of-flight** sensors in that they operate by shooting out a laser. They are different however in that rather than having the 
+  laser reflect off a detected object, the laser travels directly into a seperate sensor. By detecting when the sensor does not recieve the laser, one can determine when there 
+  is an object between the two components, thereby _breaking the beam_. If you look at a garage door, it very likely uses a beam break to detect when an object is obstructing
+  its closing. 
+
 ## Software
-Now for what you _actually_ care about as a programmer: software!
+Now for what you _actually_ care about as a programmer: software! These are the most common software tools you'll use:
 
 ### VSCode
 <img src={VSCode} alt="A screenshot of the VSCode editor. On the left is a list of sidebar menus, with the file tree currently open. On the bottom is an integrated terminal. In the center is the actual code being written." />
@@ -141,7 +161,7 @@ Python, and Java (which is what we use). It offers tons of methods to interface 
 programming significantly easier!
 
 There are a multitude of libraries built on top of WPILib (called **Vendor Dependencies**), such as ChoreoLib for following preplanned trajectories in auto,
-Phoenix 6 for controlling CTRE devices, and AdvantageKit for making logs significantly richer and easier to use.
+Phoenix 6 for controlling CTRE devices, and AdvantageKit for making logs significantly richer and easier to program.
 
 ### AdvantageScope
 <img src={AScope} alt="AdvantageScope is open to a match log. Visible in the center is a 3D field with an accurate model of the 2026 robot Anubis. In three pop-out windows, there is a display of a video recording of the match, a replay of the drivers' controller inputs, and a line graph displaying the shooter's flywheel velocity in meters/second." />
@@ -151,4 +171,32 @@ Created by team [6328 Mechanical Advantage](https://github.com/Mechanical-Advant
 and programming dashboard. 
 
 It accepts data from a log file, most commonly in the `.wpilog` format, or from NetworkTables, meaning it can be used to view live 
-data on a connected robot. 
+data on a connected robot. It then provides a multitude of ways to visualize this data, such as observing the raw values at a timestamp,
+plotting them on a line graph, displaying poses and mechanism positions on a field, or visualizing the state of a swerve drive.
+
+### Choreo 
+<img src={Choreo} alt="Choreo is open to an autonomous trajectory from 2026, currently editing one of the waypoints along the path. The full path involves driving to the center of the field, picking up gamepieces, and then driving back to score them." />
+
+Choreo is an application to create highly optimized drive trajectories to follow in autonomous (and in tele-op in some cases). It also allows you to
+specify commands to be run at points on that trajectory, thereby enabling you to plot an entire autonomous routine in Choreo. The companion vendor dep
+ChoreoLib allows the robot to read and carry out these trajectories and routines.
+
+{/* TODO Add AEMLogMan once that exists in a more polished capacity. */}
+
+### The DriverStation
+<img src={DSLegacy} alt="The legacy Driver Station. It is on the main tab, displaying buttons to enable or disable the robot and switch the mode, indicators to display the status of communications, code, and joysticks, and a console displaying warnings." /> 
+<img src={DS} alt="The new alpha Driver Station on its main page. It displays much of the same information as the legacy driverstation, but its design is significantly more sleek and rounded, utilizing more iconography as opposed to textual labels." />
+
+The FRC DriverStation is, as the name would imply, the software drivers utilize to drive the robot. 
+We will usually have a designated laptop (also called the "driver station", confusingly) for the purposes of running the DS (software) in matches, and a second
+similar laptop for running the DriverStation and VSCode in the pit (called the "pit laptop").
+
+### Elastic
+<img src={Elastic} alt="The Elastic dashboard opened to the 'Teleoperated' tab. In a grid layout it displays information such as the robot's position and auto trajectory on the field, the amount of time left in the match, and the positions of all the swerve drive modules. In addition is a dropdown to select the desired auto routine to run." />
+
+Elastic is our preferred **driver dashboard**. It pulls data from NetworkTables (more on that in a later chapter) to display any desired info to the drivers. 
+It also allows us to set up options for the drivers to input before a match, such as the auto routine we want to perform. Generally, during a match it'll 
+be part of the operator's job to look at Elastic and inform the driver about the technical details of the robot (ie. current draw if they need to drive 
+less aggressively, odometry accuracy if they need to re-zero).
+
+It's extremely easily to configure; one simply needs to drag a widget for any NetworkTables value and 
