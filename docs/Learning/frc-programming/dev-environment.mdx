@@ -6,9 +6,36 @@ title: Setting up your Dev Environment
 Now let's get started with actually installing things. Obviously if you already have any of these things installed, you can skip their install step
 (with the exception of VSCode).
 
-## WPILib suite
+## Installing things
+
+### WPILib suite
 The interactive WPILib installer will install the majority of the tools you'll need for robotics, including but not limited to:
 - WPILib itself
 - VSCode modified for use with WPILib
 - AdvantageScope
-- 
+- Elastic
+
+You can download the installer for your respective platform [here](https://github.com/wpilibsuite/allwpilib/releases/latest).
+Simply select the "Everything" install mode, download VSCode for this computer only, wait for the install to finish, and 
+you should be ready to go!
+
+:::tip
+    If you're a NixOS-using wierdo (like me :3), you may 
+    benefit from the [frc-nix](https://github.com/frc4451/frc-nix/) project.
+    I trust that if you're using NixOS, you probably know how to work with this.
+    _(I might write a dedicated page for it though.)_
+
+    \- [Ash](https://github.com/TheFlameFish)
+:::
+
+### Choreo
+Installing Choreo is similarly quite simple. Just navigate to [this](https://github.com/SleipnirGroup/Choreo/releases/latest) page and download
+the installer, package, or standalone release for your OS of choice.
+
+We won't be going into usage of Choreo just yet, but we might as well get its installation out of the way!
+
+### The DriverStation (Optional)
+Although you'll almost always be driving the robot via the Pit Laptop or DriverStation Laptop, it can be useful to have the 
+DriverStation installed on your personal laptop (especially for simulation!). The pre-2027 DriverStation is available for Windows 
+from [this guide](https://docs.wpilib.org/en/2025/docs/zero-to-robot/step-2/frc-game-tools.html), and the post-2027 DriverStation
+is available for all platforms via [this guide](https://docs.wpilib.org/en/latest/docs/zero-to-robot/step-2/first-driver-station-installation.html).
