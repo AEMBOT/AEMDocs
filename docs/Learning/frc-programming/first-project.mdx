@@ -3,6 +3,134 @@ sidebar_position: 3
 title: WPILib Hello World
 ---
 
-Now that you have your environment set up, you're finally ready to start actually programming! In this chapter, we'll set up a basic WPILib codebase,
+import SimGUI from "@site/static/img/screenshots/simgui/showoff.png";
+
+Now that you have your development environment, you're finally ready to start actually programming! In this chapter, we'll set up a basic WPILib codebase,
 learn the basics of WPILib's command-based structure + AdvantageKit's subsystem structure, and make a basic virtual robot scream at you!
 
+## Setup
+For this project we'll be starting with Mechanical Advantage's AdvantageKit skeleton template. You can download an archive from 
+[here](https://github.com/Mechanical-Advantage/AdvantageKit/releases/latest). Under assets, just click `AdvantageKit_SkeletonTemplate.zip`.
+
+Unzip the archive in a location of your choice (I have mine stored in `~/Projects/prog/aembot/wpilib-projects/hello-world`), and open it in WPILib VSCode.
+You should have a file tree similar to this:
+```
+.
+├── AdvantageKit-License.md
+├── build.gradle
+├── gradle
+│   └── wrapper
+│       ├── gradle-wrapper.jar
+│       └── gradle-wrapper.properties
+├── gradlew
+├── gradlew.bat
+├── networktables.json
+├── settings.gradle
+├── simgui-ds.json
+├── simgui.json
+├── simgui-window.json
+├── src
+│   └── main
+│       ├── deploy
+│       └── java
+│           └── frc
+│               └── robot
+│                   ├── BuildConstants.java
+│                   ├── Constants.java
+│                   ├── Main.java
+│                   └── Robot.java
+├── vendordeps
+│   ├── AdvantageKit.json
+│   └── WPILibNewCommands.json
+└── WPILib-License.md
+```
+
+Most of the files we care about for now will be in the `src/main/java/frc/robot` directory.
+
+## Exploring the current setup.
+We're using this template because it's incredibly barebones, just containing the necessary files for WPILib and AdvantageKit with a bit
+of boilerplate. From here, we'll set up a basic command based codebase.
+
+Depending on your experience with programming, your first instinct exploring this codebase might be to look in `Main.java`, and you may be
+surprised to find it relatively empty. Indeed, the main class only really serves to start WPILib, which will handle our overall execution
+from there:
+```java
+public static void main(String... args) {
+  RobotBase.startRobot(Robot::new);
+}
+```
+
+The `Robot` class used in the above function is, of course, defined in `Robot.java`, which will have a lot more going on. The `Robot` class
+is, in a simple robot, the primary class that orchestrates our robot code. At the moment, it mainly contains boilerplate; all the code currently
+does is set up AdvantageKit logging.
+
+Aside from those, `Constants.java` is, as the name implies, a final class containing nothing but constant values. `BuildConstants.java` is similar,
+but it's automatically generated every time you build robot code; it serves to store information about the current build such as the Git commit and
+the date at which it was built.
+
+## Iterative robot code
+The most basic way to write robot code is with an iterative approach. In this structure, we explicitly write the step-by-step code that will be executed
+every loop. As an example, look at the `teleopPeriodic` method in `Robot`. As stated by the JavaDoc _(the multiline comment above the method header)_,
+code in this method will be run every loop (at 50Hz) while the robot is enabled and in the teleoperated state (drivers have control of the robot). 
+
+In fully iterative robot code, we might write something that looks similar to this to control a simple robot:
+```java
+@Override
+public void teleopPeriodic() {
+  drivetrain.driveManual(driverController.getLeftY(), driverController.getRightX());
+
+  if (driverController.getRightTriggerAxis() > 0.5) {
+    intake.run();
+    indexer.run();
+    shooter.shoot();
+  } else if (driverController.getBButton()) {
+    intake.runReverse();
+    indexer.runReverse();
+    shooter.idle();
+  } else {
+    intake.stop();
+    indexer.stop();
+    shooter.idle();
+  }
+} 
+```
+
+For a more immediate example, add the following line to your `teleopPeriodic` function in `Robot.java`:
+```java
+System.out.println("I am on the " + DriverStation.getAlliance().get().name() + " alliance!");
+```
+
+{/* TODO we may wanna introduce ppl to using the DriverStation here instead when that comes out cross-platform. */}
+
+To run this, open your command pallete and select "WPILib: Simulate Robot Code". When it asks for extensions to run, select the Sim GUI.
+You should be presented with a window like this:
+<img src={SimGUI} />
+:::tip
+  Every panel in the Sim GUI is its own subwindow. Try dragging them around to a layout that suits you!
+:::
+
+The Sim GUI is an analogue for the actual DriverStation, designed for more control in a simulated environment.
+To enable the robot, click "Teleoperated" on the "Robot State" panel. You should see "I am on the Red alliance!" being printed to
+VSCode's output console repeatedly. Now, switch the state to "Disconnected" and, in the "FMS" panel, click the "Alliance Station"
+dropdown and select a blue station. When you re-enable, you should see "I am on the Blue alliance!"
+
+Indeed, it is very easy to get started with iterative robot programming. However, once your programming becomes more complicated,
+an iterative codebase can quickly become very spaghetti-fied. For example, let's say we have a simple pick-and-place robot that
+needs to orchestrate motions of a pivot, an elevator, and a wrist. If we follow the same structure as before, it might look something
+like this:
+```java
+public class Robot extends LoggedRobot {
+  public   
+
+  public Robot() {
+    /* AdvantageKit setup would go here */
+  }
+
+  @Override
+  public void teleopPeriodic() {
+    drivetrain.driveManual(driverController.getLeftY(), driverController.getRightX());
+
+
+  } 
+}
+```
