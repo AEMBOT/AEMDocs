@@ -1,0 +1,133 @@
+---
+sidebar_position: 2
+title: Setting up your Dev Environment
+toc_max_heading_level: 4
+---
+
+import VSCodeStart from "@site/static/img/screenshots/vscode/first-start.png";
+import VSCodeNewFile from "@site/static/img/screenshots/vscode/explorer-newfile.png";
+import VSCodeHelloWorld from "@site/static/img/screenshots/vscode/hello-world.png";
+import VSCodeTerminal from "@site/static/img/screenshots/vscode/terminal.png";
+import VSCodeVCSEmpty from "@site/static/img/screenshots/vscode/source-control-empty.png";
+import VSCodeClone from "@site/static/img/screenshots/vscode/github-clone.png";
+
+Now let's get started with actually installing things. Obviously if you already have any of these things installed, you can skip their install step
+(with the exception of VSCode).
+
+## Installing things
+
+### WPILib suite
+The interactive WPILib installer will install the majority of the tools you'll need for robotics, including but not limited to:
+- WPILib itself
+- VSCode modified for use with WPILib
+- AdvantageScope
+- Elastic
+
+You can download the installer for your respective platform [here](https://github.com/wpilibsuite/allwpilib/releases/latest).
+Simply select the "Everything" install mode, click download VSCode for this computer only, wait for the install to finish, and 
+you should be ready to go!
+
+:::tip
+    If you're a NixOS-using wierdo (like me :3), you may 
+    benefit from the [frc-nix](https://github.com/frc4451/frc-nix/) project.
+    I trust that if you're using NixOS, you probably know how to work with this.
+    _(I might write a dedicated page for it though.)_
+
+    \- [Ash](https://github.com/TheFlameFish)
+:::
+
+### Choreo
+Installing Choreo is similarly quite simple. Just navigate to [this](https://github.com/SleipnirGroup/Choreo/releases/latest) page and download
+the installer, package, or standalone release for your OS of choice.
+
+We won't be going into usage of Choreo just yet, but we might as well get its installation out of the way!
+
+### Git
+If you haven't installed Git yet, you can do so via [this link](https://git-scm.com/install/).
+
+If you're on Windows, I'd also strongly suggest installing Git Bash, which should be an option at some point in the installer.
+It offers a terminal experience similar to the default for MacOS and many Linux distributions, and Bash will be the primary
+supported shell for this guide.
+
+### The DriverStation (Optional)
+Although you'll almost always be driving the robot via the Pit Laptop or DriverStation Laptop, it can be useful to have the 
+DriverStation installed on your personal laptop (especially for simulation!). The pre-2027 DriverStation is available for Windows 
+from [this guide](https://docs.wpilib.org/en/2025/docs/zero-to-robot/step-2/frc-game-tools.html), and the post-2027 DriverStation
+is available for all platforms via [this guide](https://docs.wpilib.org/en/latest/docs/zero-to-robot/step-2/first-driver-station-installation.html).
+
+## Setting up the aforementioned things
+### VSCode
+Once installed, you should be able to open VSCode from your system's application launcher. Make sure you launch the WPILib version instead of the standalone
+version if you have that installed. 
+
+:::note
+    If you're familiar with VSCode, you can skip the rest of this subsection.
+:::
+
+You should be greeted with a page similar to this:
+<img src={VSCodeStart} alt="The VSCode welcome screen. In the center is a menu with links to various guides, and buttons to create or open a project. On the left sidebar, the explorer tab is open, displaying buttons to open a folder, clone a git repository, or create a new Java project." />
+
+Let's try actually opening a project. First, open your command pallete with `Shift+P` or `F1`. This'll bring up an extensive list of commands you can use to
+control your editor. Type "open folder" and select the "File: Open Folder" option. This will, as you'd expect, bring up your system's folder selection dialogue.
+Create a new folder whereever you please; somewhere such as `<your user directory>/Documents/learn-vscode`. If you get a prompt asking if you trust the authors
+of the project, click yes (you are the author, after all!).
+
+On the left sidebar, your explorer pane should now display a blank directory. If it doesn't you may not be on the right tab; on the very left of the sidebar
+click the explorer icon (or press `Ctrl+Shift+E`). Try creating a new file by clicking the icon next to the directory name, and name it `hello-world.sh`.
+In the editor tab that should open, simply type:
+```bash
+echo "Hello, world!"
+```
+
+<img src={VSCodeNewFile} alt="A zoomed in view of the explorer pane, with the cursor over the 'new file' button." width="40%" />
+<img src={VSCodeHelloWorld} alt="A zoomed in view of the explorer pane and edit pane. The 'hello-world.sh' file is open and in it is written 'echo Hello, World'." width="49%" />
+
+This is a shell script, a series of commands to be executed in a terminal shell. To run it, we'll of course need a terminal.
+To open VSCode's integrated terminal pane, press ctrl+\`. You may also want to switch to the Bash shell by clicking the arrow
+on the top right of the pane and selecting the Bash option. In the terminal, run the shell script by entering:
+```bash
+bash ./hello-world.sh
+```
+
+<img src={VSCodeTerminal} alt="The VSCode terminal pane is open with the bash shell. The aforementioned command has been run, which resulted in the output 'Hello, world!'" />
+
+<details>
+    <summary>Optional: Customizing VSCode</summary>
+
+    As previously mentioned, VSCode is very flexible and can be customized a decent bit. Your primary method of customizing VSCode will probably be
+    via extensions. To browse extensions, click onto the "Extensions" tab in the sidebar (or press `Ctrl+Shift+X`). Try searching for GitLens, an extension
+    that offers a decent few features to make working with Git a bit easier in VSCode. You can click the extension's name to open its information page in a new
+    tab, and install it simply via the "install" button.
+
+    VSCode can also be set to use a particular colour theme. Open your command pallete and select "Preferences: Color Theme". You can scroll through the themes
+    with your arrow keys to get a preview of each, and press enter to select the one you like best. (I'm quite partial to the [Catppuccin Themes](https://marketplace.visualstudio.com/items?itemName=Catppuccin.catppuccin-vsc).)
+
+    Most importantly, you can edit your settings via the command pallete item "Preferences: Open User Settings." Try switching your editor font with the
+    "Editor: Font Family" option.
+</details>
+
+### Git & GitHub
+By this point, you should have a basic understanding of how to use Git, so we won't dwell on that too much and will instead go into its integration with VSCode,
+and getting your GitHub account set up with the organization.
+
+If you don't have one already, create an account at [github.com](https://github.com/) and ask a programming mentor or lead to add you to the org. This will allow
+you to access our GitHub repositories. Let's try it out by cloning the source repository of this very website!
+
+In VSCode, navigate to the "Source Control" tab on your left sidebar. If you're on the welcome screen, you'll have the option here to clone a repo. If you aren't,
+simply open your command pallete and select "Git: Clone". In the dialogue that pops up, select "Clone from GitHub." You should get a prompt to log into GitHub;
+press yes and use your web browser to log in. You should now get a search prompt. Search for "AEMDocs," and select the option "AEMBOT/AEMDocs."
+
+<img src={VSCodeVCSEmpty} width="32%" alt="The left sidebar is open to the Source Control pane. There are buttons to open a folder, and to clone a remote repository." />
+<img src={VSCodeClone} width="60%" alt="VSCode's GitHub repo selection dialog. At the top is a search bar, where 'AEMDocs' has been entered. The first item in the list is 'AEMBOT/AEMDocs'. Below it are many other suggested repositories." />
+
+If you want, you can use the Source Control pane as a good GUI front-end for Git. Try modifying some files and messing about with it.
+
+### AdvantageScope
+AdvantageScope mostly works out of the box, but there are some team-specific settings you'll need to change.
+
+You should be able to open AdvantageScope either by using the command pallete item "WPILib: Start Tool," or by using your system's application launcher.
+Once it's open, you can press `ctrl+,` to open the settings menu. From there, just set your "Robot Address" to `10.64.43.2`, and your Robot Log Path to 
+`/U/logs`. 
+
+To be able to view match videos alongside your logs, you'll also need a TBA API key. You can grab one from www.thebluealliance.com/account.
+Simply log in or sign up, scroll down to the "Read API Keys" header, create a new key with a description of your choice, and copy-paste it into AScope.
