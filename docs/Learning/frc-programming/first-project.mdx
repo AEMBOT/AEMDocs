@@ -48,11 +48,11 @@ You should have a file tree similar to this:
 Most of the files we care about for now will be in the `src/main/java/frc/robot` directory.
 
 ## Exploring the current setup.
-We're using this template because it's incredibly barebones, just containing the necessary files for WPILib and AdvantageKit with a bit
-of boilerplate. From here, we'll set up a basic command based codebase.
+We're using this template because it's quite barebones, just containing the necessary files for WPILib and AdvantageKit with a bit
+of boilerplate. From here, we'll set up a basic **command based** codebase.
 
-Depending on your experience with programming, your first instinct exploring this codebase might be to look in `Main.java`, and you may be
-surprised to find it relatively empty. Indeed, the main class only really serves to start WPILib, which will handle our overall execution
+Depending on your experience with programming, your first instinct exploring this codebase might be to look in `Main.java`, which you may be
+surprised to find relatively empty. Indeed, the main class only really serves to start WPILib, which will handle our overall execution flow
 from there:
 ```java
 public static void main(String... args) {
@@ -77,9 +77,9 @@ In fully iterative robot code, we might write something that looks similar to th
 ```java
 @Override
 public void teleopPeriodic() {
-  drivetrain.driveManual(driverController.getLeftY(), driverController.getRightX());
+  drivetrain.driveManual(driverController.getLeftY(), driverController.getRightY());
 
-  if (driverController.getRightTriggerAxis() > 0.5) {
+  if (driverController.getRightTriggerAxis() > 0.5) { // XBOX controller triggers are analog (0.0-1.0)
     intake.run();
     indexer.run();
     shooter.shoot();
@@ -95,7 +95,7 @@ public void teleopPeriodic() {
 } 
 ```
 
-For a more immediate example, add the following line to your `teleopPeriodic` function in `Robot.java`:
+For a more immediate example, try adding the following line to your `teleopPeriodic` function in `Robot.java`:
 ```java
 System.out.println("I am on the " + DriverStation.getAlliance().get().name() + " alliance!");
 ```
@@ -111,26 +111,151 @@ You should be presented with a window like this:
 
 The Sim GUI is an analogue for the actual DriverStation, designed for more control in a simulated environment.
 To enable the robot, click "Teleoperated" on the "Robot State" panel. You should see "I am on the Red alliance!" being printed to
-VSCode's output console repeatedly. Now, switch the state to "Disconnected" and, in the "FMS" panel, click the "Alliance Station"
+VSCode's output console repeatedly. Now, switch the state to "Disconnected," and in the "FMS" panel click the "Alliance Station"
 dropdown and select a blue station. When you re-enable, you should see "I am on the Blue alliance!"
 
 Indeed, it is very easy to get started with iterative robot programming. However, once your programming becomes more complicated,
-an iterative codebase can quickly become very spaghetti-fied. For example, let's say we have a simple pick-and-place robot that
-needs to orchestrate motions of a pivot, an elevator, and a wrist. If we follow the same structure as before, it might look something
-like this:
+an iterative codebase can quickly become very spaghetti-fied. 
+
+For a more complex example, let's say we have a simple pick-and-place robot that needs to orchestrate motions of a pivot, an elevator, and a wrist. 
+It needs three poses: grabbing game pieces, holding itself within frame perimeter, and placing game pieces. It needs to go into its standby pose between
+each grabbing and placing, and it needs to move each component in such a sequence that they won't collide with things. If we follow the same structure as before, 
+our code might look something like this:
 ```java
 public class Robot extends LoggedRobot {
-  public   
+  private enum ArmState {
+    GRABBING(80, 0.5, 20),
+    STANDBY(0, 0, 0),
+    PLACING(10, 2, 90);
+
+    public final double pivotAngleDeg;
+    public final double elevatorHeightM;
+    public final double wristPitchDeg;
+
+    private ArmState(double pivotDegrees, double elevatorMeters, double wristDegrees) {
+      this.pivotAngleDeg = pivotDegrees;
+      this.elevatorHeightM = elevatorMeters;
+      this.wristPitchDeg = wristDegrees;
+    }
+  }
+
+  /** The arm state we are at or are changing from. */
+  private ArmState previousArmState = ArmState.STANDBY;
+  /** The arm state we are switching to. */
+  private ArmState targetArmState = ArmState.STANDBY;
+
+  private XboxController driverController = new XboxController(0);
+
+  /* We'd define the subsystems (pivot, elevator, wrist) here as well */
 
   public Robot() {
     /* AdvantageKit setup would go here */
   }
 
+  /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    drivetrain.driveManual(driverController.getLeftY(), driverController.getRightX());
+    drivetrain.driveManual(driverController.getLeftY(), driverController.getRightY());
 
+    if (driverController.getAButtonPressed()) {
+      targetArmState = ArmState.PLACING;
+    } else if (driverController.getBButtonPressed()) {
+      targetArmState = ArmState.STANDBY;
+    } else if (driverController.getYButtonPressed()) {
+      targetArmState = ArmState.PLACING;
+    }
 
-  } 
+    moveArm();
+  }
+
+  /** Run once per periodic loop. Moves the arm to {@link #targetArmState}. */
+  private void moveArm() {
+    if (previousArmState != targetArmState) {
+      if (
+        // If we're moving the arm from standby to an outward pose
+        previousArmState == ArmState.STANDBY && targetArmState == ArmState.GRABBING
+        ||
+        previousArmState == ArmState.STANDBY && targetArmState == ArmState.PLACING
+      ) {
+        moveArmOutToState(targetArmState);
+      } else if (
+        // If we're moving the arm from an outward pose to standby
+        previousArmState == ArmState.GRABBING && targetArmState == ArmState.STANDBY
+        ||
+        previousArmState == ArmState.PLACING && targetArmState == ArmState.STANDBY
+        // If we're moving the arm from an outward pose to another outward pose,
+        // we need to move to standby in between.
+        ||
+        previousArmState == ArmState.PLACING && targetArmState == ArmState.GRABBING
+        ||
+        previousArmState == ArmState.GRABBING && targetArmState == ArmState.PLACING
+      ) {
+        moveArmInToState(ArmState.STANDBY);
+      }
+    }
+  }
+
+  /**
+   * Moves the arm to the given state in the order of pivot, elevator, wrist
+   * @return Whether or not we've reached the given state.
+   */
+  private boolean moveArmOutToState(ArmState state) {
+    pivot.setTarget(state.pivotAngleDeg);
+    if (pivot.withinTolerance()) {
+      elevator.setTarget(state.elevatorHeightM);
+      if (elevator.withinTolerance()) {
+        wrist.setTarget(state.wristPitchDeg);
+        if (wrist.withinTolerance()) {
+          previousArmState = state;
+          return true;
+        };
+      }
+    }
+    
+    return false;
+  }
+
+  /**
+   * Moves the arm to the given state in the order of wrist, elevator, pivot.
+   * @return Whether or not we've reached the given state.
+   */
+  private boolean moveArmInToState(ArmState state) {
+    wrist.setTarget(state.wristPitchDeg);
+    if (wrist.withinTolerance()) {
+      elevator.setTarget(state.elevatorHeightM);
+      if (elevator.withinTolerance()) {
+        pivot.setTarget(state.pivotAngleDeg);
+        if (pivot.withinTolerance()) {
+          previousArmState = state;
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
 }
 ```
+
+This is unpleasant, to say the least. And this is only for a very simple system! Imagine if we had to move the pivot multiple times within
+a transition; or if we needed more complex timing to run our intake or claw; or, heavens forbid, if we needed to choreograph an entire
+autonomous routine this way!
+
+Of course, we _could_ make this better. We could, as the great programmers before us have done, create abstraction upon abstraction,
+layer upon layer, until all of this pain is buried and our higher-level code is clean as can be. But we don't have to, because the 
+folks behind WPILib have already done so for us.
+
+## Command based robot code
+A **command** is, in essence, an object that contains:
+- Some code to be run (a **runnable** object, or a **lambda**)
+- Instructions for _how_ it should be run. For example, an `InstantCommand` will have its code run only once, whereas
+  a `RunCommand` will have its code run repeatedly (once per periodic loop) until the command is told to end.
+
+To actually use these commands, we have the **command scheduler**, which runs on the robot's periodic loop and handles executing our scheduled
+commands.
+
+## For additional reference
+Some optional reading that goes into more detail on the topics covered here:
+- [WPILib docs: Command-Based programming](https://docs.wpilib.org/en/stable/docs/software/commandbased/index.html)
+- [AdvantageKit docs: What is AdvantageKit?](https://docs.advantagekit.org/getting-started/what-is-advantagekit/)
+- [AdvantageKit docs: IO Interfaces](https://docs.advantagekit.org/data-flow/recording-inputs/io-interfaces)
